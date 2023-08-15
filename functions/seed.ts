@@ -11,8 +11,7 @@ export async function handler() {
             username: username,
             email: `${username}@gmail.com`
         }
-
-        createCreator(creatorData);
+        await createCreator(creatorData);
     }
 
 
