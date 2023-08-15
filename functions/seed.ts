@@ -1,5 +1,5 @@
 import { createCreator } from "@utils/database";
-import { generateFromEmail, generateUsername } from "unique-username-generator";
+import { generateUsername } from "unique-username-generator";
 
 export async function handler() {
 
