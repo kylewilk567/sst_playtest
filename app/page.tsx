@@ -1,17 +1,26 @@
 import Image from 'next/image'
 import crypto from "crypto";
 import { Bucket } from "sst/node/bucket"; // These can ONLY be used on server side components!!
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Form from "@components/Form";
+
+
+// Note: PutObjectCommand is the same to be used for editing an object (will overwrite if exists)
 
 export default async function Home() {
 
   const command = new PutObjectCommand({
-    ACL: "public-read",
+    ACL: "private",
     Key: crypto.randomUUID(), // NOTE: Use string to set directory path as well such as "users/{user}/filename.txt"
     Bucket: Bucket.public.bucketName,
   });
+
+  // Note: getSignedUrl allows unauthorized uploads (ie: random client). This cannot be used alongside
+  // Api keys in headless setup, so instead make client query headless setup in order to upload and check
+  // perms there
+  // Note: The above setup slows things down as they must query our api, and then we query S3, (takes 2x as long)
+
 
   const url = await getSignedUrl(new S3Client({}), command);
 
@@ -20,7 +29,7 @@ export default async function Home() {
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
         <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
           Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
+          <code className="font-mono font-bold">app/page.tsx</code>
         </p>
         <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
           <a
