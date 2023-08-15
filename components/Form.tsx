@@ -46,6 +46,7 @@ const Form = ({ url } : { url: string}) => {
   // I did this using "relative" and "z-50" below, but this is very temporary
   // https://stackoverflow.com/questions/22184181/some-input-tags-are-not-working
   return (
+    <>
     <form onSubmit={handleFileSubmit}>
       <div>
         <label className="relative z-50" htmlFor="fileInput">
@@ -63,6 +64,7 @@ const Form = ({ url } : { url: string}) => {
         Submit
       </button>
     </form>
+    </>
   );
 };
 

@@ -5,7 +5,6 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Form from "@components/Form";
 
-
 // Note: PutObjectCommand is the same to be used for editing an object (will overwrite if exists)
 
 export default async function Home() {

@@ -33,20 +33,20 @@ export default {
       });
 
       // Database seeding script
-      // new Script(stack, "CreatorDataSeedScript", {
-      //   defaults: {
-      //     function: {
-      //       bind: [creatorTable],
-      //     },
-      //   },
-      //   onCreate: "functions/seed.handler",
-      // });
+      new Script(stack, "CreatorDataSeedScript", {
+        defaults: {
+          function: {
+            bind: [creatorTable],
+          },
+        },
+        onCreate: "functions/seed.handler",
+      });
 
       // Add S3 bucket
       const bucket = new Bucket(stack, "public");
 
       const site = new NextjsSite(stack, "site", {
-        bind: [creatorTable, bucket],
+        bind: [bucket],
       });
 
       stack.addOutputs({
