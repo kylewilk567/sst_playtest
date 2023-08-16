@@ -10,7 +10,6 @@ export default {
   },
   stacks(app) {
     app.stack(function Site({ stack }) {
-
       // Add database table - serves creator site needs
       const creatorTable = new Table(stack, "creator", {
         fields: {
@@ -46,7 +45,13 @@ export default {
       const bucket = new Bucket(stack, "public");
 
       const site = new NextjsSite(stack, "site", {
-        bind: [bucket],
+        bind: [creatorTable, bucket],
+        environment: {
+          NEXT_AUTHURL: process.env.NEXTAUTH_URL as string,
+          NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET as string,
+          GOOGLE_ID: process.env.GOOGLE_ID as string,
+          GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
       });
 
       stack.addOutputs({
