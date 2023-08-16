@@ -3,6 +3,26 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 // import { createCreator, getCreatorByEmail } from "@utils/database";
 
+import { DynamoDB, DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBAdapter } from "@next-auth/dynamodb-adapter";
+
+const config: DynamoDBClientConfig = {
+  credentials: {
+    accessKeyId: "AKIA5W2O3KBQWIZSMSFJ",
+    secretAccessKey: "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",
+  },
+  region: "us-east-2",
+};
+
+const client = DynamoDBDocument.from(new DynamoDB(config), {
+  marshallOptions: {
+    convertEmptyValues: true,
+    removeUndefinedValues: true,
+    convertClassInstanceToMap: true,
+  },
+});
+
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -39,7 +59,9 @@ export const options: NextAuthOptions = {
     // }),
   ],
 
-  // TODO: Adapter to store user session info in database: https://authjs.dev/reference/adapter/dynamodb
+  adapter: DynamoDBAdapter(client, {
+    tableName: "kwilk-creator-next-auth", // TODO: Must modify this to change depending on deployed stage and app name
+  }),
 
   // TODO: Add theming and branding: https://next-auth.js.org/configuration/options#theme
 
