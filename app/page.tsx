@@ -10,6 +10,9 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import Form from "@components/Form";
 import Nav from "@components/Nav";
+import { Creator } from "@utils/entities";
+import { Dynamo } from "@utils/dynamo";
+import { ElectroEvent } from "electrodb";
 
 // Note: PutObjectCommand is the same to be used for editing an object (will overwrite if exists)
 
@@ -26,6 +29,35 @@ export default async function Home() {
   // Note: The above setup slows things down as they must query our api, and then we query S3, (takes 2x as long)
 
   const url = await getSignedUrl(new S3Client({}), command);
+
+  // (e: ElectroEvent) => { console.log(JSON.stringify(e, null 2)}
+  // const params = await Creator.query
+  //   .emails({
+  //     email: "kylewilk@umich.edu",
+  //   })
+  //   .params({
+  //     data: "attributes",
+  //     attributes: ["creatorId", "email", "username"],
+  //     logger: (e: ElectroEvent) => {
+  //       console.log(JSON.stringify(e, null, 2));
+  //     },
+  //   });
+  // console.log(params);
+
+  const response1 = await Creator.query
+    .emails({
+      email: "kylewilk@umich.edu",
+    })
+    .go({
+      // data: "attributes",
+      // attributes: ["creatorId", "email", "username"],
+      logger: (e: ElectroEvent) => {
+        console.log(JSON.stringify(e, null, 2));
+      },
+    });
+  console.log(response1);
+  console.log(response1.data);
+  //console.log(response1.data?.Items[0]);
 
   return (
     <>

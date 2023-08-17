@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
 import type { BuiltInProviderType } from "@node_modules/next-auth/providers";
+import ThemeSelector from "@components/ThemeSelector";
 
 const Nav = () => {
   const { data: session } = useSession();
@@ -42,6 +43,8 @@ const Nav = () => {
       <div className="sm:flex hidden">
         {session?.user ? (
           <div className="flex gap-3 md:gap-5">
+            <ThemeSelector />
+            <p className="text-white dark:text-black">testText</p>
             <button
               type="button"
               onClick={() => signOut()}

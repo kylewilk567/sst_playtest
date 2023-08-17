@@ -1,27 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
-// import { createCreator, getCreatorByEmail } from "@utils/database";
-
-import { DynamoDB, DynamoDBClientConfig } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBAdapter } from "@next-auth/dynamodb-adapter";
-
-const config: DynamoDBClientConfig = {
-  credentials: {
-    accessKeyId: "AKIA5W2O3KBQWIZSMSFJ",
-    secretAccessKey: "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",
-  },
-  region: "us-east-2",
-};
-
-const client = DynamoDBDocument.from(new DynamoDB(config), {
-  marshallOptions: {
-    convertEmptyValues: true,
-    removeUndefinedValues: true,
-    convertClassInstanceToMap: true,
-  },
-});
+import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
+import { createCreator, getCreatorByEmail } from "@utils/database";
+import { Profile } from "next-auth";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -59,47 +40,70 @@ export const options: NextAuthOptions = {
     // }),
   ],
 
-  adapter: DynamoDBAdapter(client, {
-    tableName: "kwilk-creator-next-auth", // TODO: Must modify this to change depending on deployed stage and app name
-  }),
+  session: {
+    // Seconds - How long until an idle session expires and is no longer valid.
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
 
   // TODO: Add theming and branding: https://next-auth.js.org/configuration/options#theme
 
-  // https://next-auth.js.org/configuration/callbacks
-  // callbacks: {
-  //   async session({ session }) {
-  //     // TODO: Change this to .get() using an id - fastest lookup method
-  //     const sessionUser = getCreatorByEmail(session.user.email);
+  //https://next-auth.js.org/configuration/callbacks
+  callbacks: {
+    async session({ session }) {
+      // TODO: Change this to .get() using an id - fastest lookup method
+      const email = session.user?.email;
+      if (!email) return session;
 
-  //     session.user.id = sessionUser.data[0].id;
+      // const sessionUser = await getCreatorByEmail(email);
 
-  //     return session;
-  //   },
+      // console.log("sessionUser");
+      // console.log(sessionUser);
 
-  //   async signIn({ profile }) {
-  //     try {
-  //       // check if a user already exists
-  //       // TODO: Change this to .get() using an id - fastest lookup method
-  //       const userExists = getCreatorByEmail(profile.email);
+      //if (session.user) session.user.creatorId = sessionUser.data[0].creatorId;
 
-  //       // if not, create a new user
-  //       if (userExists.data.length === 0) {
-  //         //if(!userExists){
+      return session;
+    },
 
-  // const response = await creatorCreator({
-  //             email: profile.email,
-  //             username: profile.name.replace(" ", "").toLowerCase(),
-  //             image: profile.picture,
-  //   })
-  //         // TODO: View returned creation data - does it return an id?
-  //         console.log(response);
-  //       }
+    async signIn({ user, account, profile, email, credentials }) {
+      try {
+        if (account) {
+          // Signing in with Google
+          if (account.provider === "google") {
+            if (!profile) return false;
 
-  //       return true;
-  //     } catch (error) {
-  //       console.log(error);
-  //       return false;
-  //     }
-  //   },
-  // },
+            const googleProfile = profile as GoogleProfile;
+
+            // Valid email
+            if (!googleProfile.email) {
+              return "/auth/error?error=AccessDenied";
+            }
+            // Verified email
+            if (!googleProfile.email_verified) {
+              return "/auth/error?error=AccessDenied";
+            }
+
+            const userExists = await getCreatorByEmail(googleProfile.email);
+
+            // if not, create a new user
+            if (userExists.data.length === 0) {
+              const response = await createCreator({
+                email: googleProfile.email,
+                username: googleProfile.name.replace(" ", "").toLowerCase(),
+                image: googleProfile.picture,
+              });
+
+              console.log(response);
+            }
+            return true;
+          }
+        }
+
+        // Some other unknown login going on...
+        return false;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    },
+  },
 };

@@ -21,8 +21,15 @@
     ],
     "paths": {
       "@*": ["./*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "files": true
+  },
+  "files": [
+    "types/next-auth.d.ts"
+  ]
 }

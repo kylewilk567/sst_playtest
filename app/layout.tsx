@@ -1,9 +1,9 @@
 import "@styles/globals.css";
+import { Providers } from "./providers";
 import type { Metadata } from "next";
-import AuthProvider from "@context/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "MineMarket Creator",
+  title: "Creator | MineMarket",
   description: "Create custom Minecraft webstores",
 };
 
@@ -13,9 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

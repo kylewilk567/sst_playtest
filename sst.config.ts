@@ -26,7 +26,13 @@ export default {
           gsi1: {
             partitionKey: "gsi1pk",
             sortKey: "gsi1sk",
-            projection: ["creatorId", "username", "email"],
+            projection: [
+              "creatorId",
+              "username",
+              "email",
+              "__edb_e__",
+              "__edb_v__",
+            ],
           },
         },
       });
@@ -41,32 +47,11 @@ export default {
         onCreate: "functions/seed.handler",
       });
 
-      // Table to store user information from next-auth
-      const nextAuthTable = new Table(stack, "next-auth", {
-        timeToLiveAttribute: "expires", // attribute name for ttl expiration time
-        fields: {
-          pk: "string",
-          sk: "string",
-          GSI1PK: "string",
-          GSI1SK: "string",
-        },
-        primaryIndex: {
-          partitionKey: "pk",
-          sortKey: "sk",
-        },
-        globalIndexes: {
-          GSI1: {
-            partitionKey: "GSI1PK",
-            sortKey: "GSI1SK",
-          },
-        },
-      });
-
       // Add S3 bucket
       const bucket = new Bucket(stack, "public");
 
       const site = new NextjsSite(stack, "site", {
-        bind: [creatorTable, nextAuthTable, bucket],
+        bind: [creatorTable, bucket],
         environment: {
           NEXT_AUTHURL: process.env.NEXTAUTH_URL as string,
           NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET as string,
