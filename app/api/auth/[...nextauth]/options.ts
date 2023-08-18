@@ -7,7 +7,7 @@ import { Profile } from "next-auth";
 export const options: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID as string, // TODO: Configure env variables
+      clientId: process.env.GOOGLE_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     // CredentialsProvider({
@@ -54,12 +54,9 @@ export const options: NextAuthOptions = {
       const email = session.user?.email;
       if (!email) return session;
 
-      // const sessionUser = await getCreatorByEmail(email);
-
-      // console.log("sessionUser");
-      // console.log(sessionUser);
-
-      //if (session.user) session.user.creatorId = sessionUser.data[0].creatorId;
+      // Add user id to session data
+      const sessionUser = await getCreatorByEmail(email);
+      session.user.creatorId = sessionUser.data[0].creatorId;
 
       return session;
     },

@@ -5,14 +5,14 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
-import type { BuiltInProviderType } from "@node_modules/next-auth/providers";
 import ThemeSelector from "@components/ThemeSelector";
+import { Profile } from "next-auth";
 
 const Nav = () => {
   const { data: session } = useSession();
 
   const [providers, setProviders] = useState<Record<
-    LiteralUnion<BuiltInProviderType, string>,
+    LiteralUnion<any, string>,
     ClientSafeProvider
   > | null>(null);
   const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);

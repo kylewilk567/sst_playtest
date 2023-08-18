@@ -30,35 +30,6 @@ export default async function Home() {
 
   const url = await getSignedUrl(new S3Client({}), command);
 
-  // (e: ElectroEvent) => { console.log(JSON.stringify(e, null 2)}
-  // const params = await Creator.query
-  //   .emails({
-  //     email: "kylewilk@umich.edu",
-  //   })
-  //   .params({
-  //     data: "attributes",
-  //     attributes: ["creatorId", "email", "username"],
-  //     logger: (e: ElectroEvent) => {
-  //       console.log(JSON.stringify(e, null, 2));
-  //     },
-  //   });
-  // console.log(params);
-
-  const response1 = await Creator.query
-    .emails({
-      email: "kylewilk@umich.edu",
-    })
-    .go({
-      // data: "attributes",
-      // attributes: ["creatorId", "email", "username"],
-      logger: (e: ElectroEvent) => {
-        console.log(JSON.stringify(e, null, 2));
-      },
-    });
-  console.log(response1);
-  console.log(response1.data);
-  //console.log(response1.data?.Items[0]);
-
   return (
     <>
       <Nav />

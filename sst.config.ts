@@ -1,5 +1,9 @@
 import { SSTConfig } from "sst";
 import { NextjsSite, Bucket, Table, Script } from "sst/constructs";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
+
+const certArn =
+  "arn:aws:acm:us-east-1:942373818465:certificate/101aa7bc-a87a-46b9-83d1-956eadbeb541";
 
 export default {
   config(_input) {
@@ -57,9 +61,22 @@ export default {
           NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET as string,
           GOOGLE_ID: process.env.GOOGLE_ID as string,
           GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
-          // AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY as string,
-          // AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY as string,
         },
+        // Deploy to custom domain IFF deploying to prod stage only
+        customDomain:
+          stack.stage === "prod"
+            ? {
+                isExternalDomain: true,
+                domainName: "creator.minemarket.xyz",
+                cdk: {
+                  certificate: Certificate.fromCertificateArn(
+                    stack,
+                    "CreatorCert",
+                    certArn
+                  ),
+                },
+              }
+            : undefined,
       });
 
       stack.addOutputs({
