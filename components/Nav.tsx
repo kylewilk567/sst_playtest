@@ -7,9 +7,12 @@ import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import type { LiteralUnion, ClientSafeProvider } from "next-auth/react";
 import ThemeSelector from "@components/ThemeSelector";
 import { Profile } from "next-auth";
+import { getToken } from "next-auth/jwt";
 
 const Nav = () => {
   const { data: session } = useSession();
+  console.log(session);
+  console.log(session?.user);
 
   const [providers, setProviders] = useState<Record<
     LiteralUnion<any, string>,

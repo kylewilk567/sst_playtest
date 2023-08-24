@@ -1,8 +1,12 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
-import { createCreator, getCreatorByEmail } from "@utils/database";
 import { Profile } from "next-auth";
+import { setAuthAccessToken } from "@utils/api";
+import {
+  GetCreatorByEmailRequest,
+  CreatorsApi,
+} from "@minemarket/cdk-ts-fetch";
 
 export const options: NextAuthOptions = {
   providers: [
@@ -49,19 +53,40 @@ export const options: NextAuthOptions = {
 
   //https://next-auth.js.org/configuration/callbacks
   callbacks: {
-    async session({ session }) {
+    async jwt({ token, account, profile }) {
+      // Persist the OAuth access_token to the token right after signin
+      console.log("Sub: " + token.sub);
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
       // TODO: Change this to .get() using an id - fastest lookup method
+      console.log("Enter session()");
       const email = session.user?.email;
       if (!email) return session;
 
-      // Add user id to session data
-      const sessionUser = await getCreatorByEmail(email);
-      session.user.creatorId = sessionUser.data[0].creatorId;
+      console.log("Session token: " + token);
+      // Add authorization to api request
+      if (token.sub) {
+        setAuthAccessToken(token.sub);
+
+        // Add user id to session data
+        const sessionUser = await new CreatorsApi().getCreatorByEmail(email);
+        console.log("session returned user: " + sessionUser);
+        session.user.creatorId = sessionUser.creatorId;
+      }
+
+      // const sessionUser = await getCreatorByEmail(email);
+      // session.user.creatorId = sessionUser.data[0].creatorId;
 
       return session;
     },
 
     async signIn({ user, account, profile, email, credentials }) {
+      console.log("Enter signIn()");
       try {
         if (account) {
           // Signing in with Google
@@ -79,18 +104,36 @@ export const options: NextAuthOptions = {
               return "/auth/error?error=AccessDenied";
             }
 
-            const userExists = await getCreatorByEmail(googleProfile.email);
+            // Add authorization to api request
+            if (account.access_token) {
+              console.log("Account access token: " + account.access_token);
+              setAuthAccessToken(account.access_token);
 
-            // if not, create a new user
-            if (userExists.data.length === 0) {
-              const response = await createCreator({
+              // Add user id to session data
+              const request: GetCreatorByEmailRequest = {
                 email: googleProfile.email,
-                username: googleProfile.name.replace(" ", "").toLowerCase(),
-                image: googleProfile.picture,
-              });
-
-              console.log(response);
+              };
+              const sessionUser = await new CreatorsApi().getCreatorByEmail(
+                request
+              );
+              console.log("Sign in returned user: " + sessionUser);
+              if (sessionUser) {
+                // TODO: Create new creator
+              }
             }
+
+            // const userExists = await getCreatorByEmail(googleProfile.email);
+
+            // // if not, create a new user
+            // if (userExists.data.length === 0) {
+            //   const response = await createCreator({
+            //     email: googleProfile.email,
+            //     username: googleProfile.name.replace(" ", "").toLowerCase(),
+            //     image: googleProfile.picture,
+            //   });
+
+            //   console.log(response);
+            // }
             return true;
           }
         }

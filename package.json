@@ -9,15 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.391.0",
-    "@aws-sdk/client-s3": "^3.391.0",
-    "@aws-sdk/lib-dynamodb": "^3.391.0",
-    "@aws-sdk/s3-request-presigner": "^3.391.0",
+    "@minemarket/cdk-ts-fetch": "file:/home/kylew/My_projects/webstore/sdk/webstoreapi_cdk_typescript-fetch",
     "@types/node": "20.4.9",
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.14",
-    "electrodb": "^2.8.1",
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
     "fs-extra": "^11.1.1",
@@ -28,12 +24,10 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwindcss": "3.3.3",
-    "typescript": "5.1.6",
-    "unique-username-generator": "^1.2.0"
+    "typescript": "5.1.6"
   },
   "devDependencies": {
-    "aws-cdk-lib": "2.91.0",
     "constructs": "10.2.69",
-    "sst": "2.24.7"
+    "sst": "^2.24.12"
   }
 }
